@@ -2,9 +2,9 @@ name: Build and Package
 
 on:
   push:
-    branches: [main]
+    branches: [ '*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ '*' ]
   release:
     types: [published]
  
@@ -81,9 +81,7 @@ jobs:
     
     # 安装NSIS
     - name: Install NSIS
-      uses: qupla/nsis-action@v1
-      with:
-        nsis-version: '3.08'
+      run: choco install nsis -y
 
     # 编译NSIS安装包
     - name: Compile Installer
