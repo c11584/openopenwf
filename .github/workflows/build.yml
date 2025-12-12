@@ -54,27 +54,31 @@ jobs:
         $nsisContent += '!insertmacro MUI_PAGE_FINISH' + "`n"
         $nsisContent += '!insertmacro MUI_UNPAGE_CONFIRM' + "`n"
         $nsisContent += '!insertmacro MUI_UNPAGE_INSTFILES' + "`n"
-        $nsisContent += '!insertmacro MUI_LANGUAGE \"English\"' + "`n`n"
-        $nsisContent += 'Section \"MainSection\" SEC01' + "`n"
-        $nsisContent += '  SetOutPath \"$INSTDIR\"' + "`n"
-        $nsisContent += '  File /r \"x64\\Release\\*\"' + "`n"
+        $nsisContent += '!insertmacro MUI_LANGUAGE "English"' + "`n`n"
+        $nsisContent += 'Section "MainSection" SEC01' + "`n"
+        $nsisContent += '  SetOutPath "$INSTDIR"' + "`n"
+        $nsisContent += '  File /r "x64\\Release\\*"' + "`n"
         $nsisContent += '  ; 关键修复：WriteUninstaller必须在Section内' + "`n"
-        $nsisContent += '  WriteUninstaller \"$INSTDIR\\uninstall.exe\"' + "`n`n"
+        $nsisContent += '  WriteUninstaller "$INSTDIR\\uninstall.exe"' + "`n`n"
         $nsisContent += '  ; 快捷方式' + "`n"
-        $nsisContent += '  CreateShortCut \"$DESKTOP\\openopenwf.lnk\" \"$INSTDIR\\openopenlauncher.exe\"' + "`n"
-        $nsisContent += '  CreateDirectory \"$SMPROGRAMS\\openopenwf\"' + "`n"
-        $nsisContent += '  CreateShortCut \"$SMPROGRAMS\\openopenwf\\openopenwf.lnk\" \"$INSTDIR\\openopenlauncher.exe\"' + "`n"
-        $nsisContent += '  CreateShortCut \"$SMPROGRAMS\\openopenwf\\Uninstall.lnk\" \"$INSTDIR\\uninstall.exe\"' + "`n"
+        $nsisContent += '  CreateShortCut "$DESKTOP\\openopenwf.lnk" "$INSTDIR\\openopenlauncher.exe"' + "`n"
+        $nsisContent += '  CreateDirectory "$SMPROGRAMS\\openopenwf"' + "`n"
+        $nsisContent += '  CreateShortCut "$SMPROGRAMS\\openopenwf\\openopenwf.lnk" "$INSTDIR\\openopenlauncher.exe"' + "`n"
+        $nsisContent += '  CreateShortCut "$SMPROGRAMS\\openopenwf\\Uninstall.lnk" "$INSTDIR\\uninstall.exe"' + "`n"
         $nsisContent += 'SectionEnd' + "`n`n"
-        $nsisContent += 'Section \"Uninstall\"' + "`n"
+        $nsisContent += 'Section "Uninstall"' + "`n"
         $nsisContent += '  ; 清理文件' + "`n"
-        $nsisContent += '  Delete \"$DESKTOP\\openopenwf.lnk\"' + "`n"
-        $nsisContent += '  RMDir /r \"$SMPROGRAMS\\openopenwf\"' + "`n"
-        $nsisContent += '  Delete \"$INSTDIR\\*.*\"' + "`n"
-        $nsisContent += '  RMDir /r \"$INSTDIR\\*\"' + "`n"
-        $nsisContent += '  RMDir \"$INSTDIR\"' + "`n"
+        $nsisContent += '  Delete "$DESKTOP\\openopenwf.lnk"' + "`n"
+        $nsisContent += '  RMDir /r "$SMPROGRAMS\\openopenwf"' + "`n"
+        $nsisContent += '  Delete "$INSTDIR\\*.*"' + "`n"
+        $nsisContent += '  RMDir /r "$INSTDIR\\*"' + "`n"
+        $nsisContent += '  RMDir "$INSTDIR"' + "`n"
         $nsisContent += 'SectionEnd' + "`n"
         
+        # Ensure any existing setup.nsi is removed before creating new one
+        if (Test-Path "$env:GITHUB_WORKSPACE\\setup.nsi") {
+          Remove-Item "$env:GITHUB_WORKSPACE\\setup.nsi" -Force
+        }
         $nsisContent | Out-File -FilePath "$env:GITHUB_WORKSPACE\\setup.nsi" -Encoding UTF8
       env:
         GITHUB_WORKSPACE: ${{ github.workspace }}
@@ -91,12 +95,11 @@ jobs:
       shell: powershell
       run: |
         # 使用PowerShell的&操作符来正确执行带空格的路径命令
-        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}\setup.nsi"
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "$env:GITHUB_WORKSPACE\setup.nsi"
     
     # 上传安装包制品
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Installer
-        path: |
-          ${{ github.workspace }}\x64\Release\openopenwf-setup.exe
+        path: ${{ github.workspace }}\x64\Release\openopenwf-setup.exe
