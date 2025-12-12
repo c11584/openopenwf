@@ -88,8 +88,10 @@ jobs:
 
     # 编译NSIS安装包
     - name: Compile Installer
+      shell: powershell
       run: |
-        "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}\setup.nsi"
+        # 使用PowerShell的&操作符来正确执行带空格的路径命令
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}\setup.nsi"
     
     # 上传安装包制品
     - name: Upload Artifact
