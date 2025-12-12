@@ -20,8 +20,9 @@ static unsigned char entryPointOriginalBytes[sizeof(entryPointOverwriteBytes)];
 static void HookedEntryPoint()
 {
 	OWFLogColor(15, "================================================================================\n");
-	OWFLogColor(15, "=====                          OpenWF Enabler (v5)                         =====\n");
-	OWFLogColor(15, "=====                                                                      =====\n");
+	OWFLogColor(15, "=====             淘宝搜夜辉—夜辉奇妙屋。其他店铺均为倒卖，如遇被骗请差评退款，请勿用于商业用途         =====\n");
+	OWFLogColor(15, "=====                                 交流群2：147787815                                     =====\n");
+	OWFLogColor(15, "=====                                 交流群3：864992697                                      =====\n");
 	OWFLogColor(15, "====="); OWFLogColor(10, "          >>> Press CTRL+P to (re)open OpenWF Inspector <<<           "); OWFLogColor(15, "=====\n");
 	OWFLogColor(15, "================================================================================\n\n");
 
