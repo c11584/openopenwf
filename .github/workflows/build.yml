@@ -14,11 +14,11 @@ jobs:
     
     strategy:
       matrix:
-        configuration: [ Debug, Release ]
+        configuration: [ Release ]
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
@@ -115,7 +115,7 @@ jobs:
         makensis "${{ github.workspace }}/packages/setup.nsi"
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: openopenwf-${{ matrix.configuration }}
         path: |
@@ -130,7 +130,7 @@ jobs:
     
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ${{ github.workspace }}/artifacts
     
