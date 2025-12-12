@@ -32,7 +32,7 @@ jobs:
       run: nuget restore openopenwf.sln
     
     - name: Build solution
-      run: msbuild openopenwf.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64
+      run: msbuild openopenwf.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /p:OutDir="${{ github.workspace }}/x64/${{ matrix.configuration }}" /p:OutputPath="${{ github.workspace }}/x64/${{ matrix.configuration }}"
 
     - name: Debug - Check build output directory
       run: |
@@ -78,6 +78,18 @@ jobs:
         $appName = "openopenwf"
         $appVersion = "1.0.0"
         $githubWorkspace = "${{ github.workspace }}"
+        
+        # Debug - Show variables for NSIS script generation
+        echo "NSIS Script Generation Variables:"
+        echo "packageName: $packageName"
+        echo "githubWorkspace: $githubWorkspace"
+        echo "Checking if package directory exists:"
+        if (Test-Path "$githubWorkspace/packages/$packageName") {
+          echo "Directory exists, listing contents:"
+          Get-ChildItem -Path "$githubWorkspace/packages/$packageName" -Recurse
+        } else {
+          echo "Directory does not exist!"
+        }
         
         # Create NSIS script content
         $nsisContent = '; openopenwf Installer' + "`n"
@@ -132,10 +144,20 @@ jobs:
     - name: Build installer with NSIS
       run: |
         $packageName = "openopenwf-${{ matrix.configuration }}-$(git rev-parse --short HEAD)"
+        $githubWorkspace = "${{ github.workspace }}"
+        
+        # Debug - Show variables for NSIS build
+        echo "NSIS Build Variables:"
+        echo "packageName: $packageName"
+        echo "githubWorkspace: $githubWorkspace"
+        echo "NSIS script path: $githubWorkspace/packages/setup.nsi"
+        echo "Checking NSIS script content:"
+        Get-Content "$githubWorkspace/packages/setup.nsi"
+        
         # Refresh environment variables after Chocolatey install
         refreshenv
         # Use full path to makensis to ensure it's found
-        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}/packages/setup.nsi"
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "$githubWorkspace/packages/setup.nsi"
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
