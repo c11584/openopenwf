@@ -54,10 +54,16 @@ jobs:
         New-Item -ItemType Directory -Path "${{ github.workspace }}/packages/${packageName}" -Force
         
         # Copy all files from output directory
-        Copy-Item -Path "${{ github.workspace }}/${outputDir}/*" -Destination "${{ github.workspace }}/packages/${packageName}" -Recurse
+        echo "Running file copy command:"
+        echo "Source: ${{ github.workspace }}/${outputDir}/*"
+        echo "Destination: ${{ github.workspace }}/packages/${packageName}"
+        Copy-Item -Path "${{ github.workspace }}/${outputDir}/*" -Destination "${{ github.workspace }}/packages/${packageName}" -Recurse -Verbose
         
         # Create ZIP archive
-        Compress-Archive -Path "${{ github.workspace }}/packages/${packageName}" -DestinationPath "${{ github.workspace }}/packages/${packageName}.zip"
+        echo "Creating ZIP archive:"
+        echo "Source: ${{ github.workspace }}/packages/${packageName}"
+        echo "Destination: ${{ github.workspace }}/packages/${packageName}.zip"
+        Compress-Archive -Path "${{ github.workspace }}/packages/${packageName}" -DestinationPath "${{ github.workspace }}/packages/${packageName}.zip" -Verbose
 
         # Debug - Check package directory
         echo "Checking package directory: packages/${packageName}"
@@ -116,8 +122,8 @@ jobs:
         $nsisContent += '!insertmacro MUI_LANGUAGE "English"' + "`n`n"
         $nsisContent += 'Section "MainSection" SEC01' + "`n"
         $nsisContent += '  SetOutPath "$INSTDIR"' + "`n`n"
-        $nsisContent += '  ; Copy all files from the package directory' + "`n"
-        $nsisContent += '  File /r "' + $githubWorkspace + '/packages/' + $packageName + '/*"' + "`n`n"
+        $nsisContent += '  ; Copy all files from the build output directory' + "`n"
+        $nsisContent += '  File /r "' + $githubWorkspace + '/' + $outputDir + '/*"' + "`n`n"
         $nsisContent += '  ; Create desktop shortcut' + "`n"
         $nsisContent += '  CreateShortCut "$DESKTOP\\' + $appName + '.lnk" "$INSTDIR\\openopenlauncher.exe"' + "`n`n"
         $nsisContent += '  ; Create start menu shortcut' + "`n"
