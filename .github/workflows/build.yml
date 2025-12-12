@@ -79,6 +79,12 @@ jobs:
       env:
         GITHUB_WORKSPACE: ${{ github.workspace }}
     
+    # 安装NSIS
+    - name: Install NSIS
+      uses: qupla/nsis-action@v1
+      with:
+        nsis-version: '3.08'
+
     # 编译NSIS安装包
     - name: Compile Installer
       run: |
