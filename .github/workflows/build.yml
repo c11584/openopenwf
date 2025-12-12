@@ -89,12 +89,27 @@ jobs:
         echo "NSIS Script Generation Variables:"
         echo "packageName: $packageName"
         echo "githubWorkspace: $githubWorkspace"
-        echo "Checking if package directory exists:"
-        if (Test-Path "$githubWorkspace/packages/$packageName") {
+        echo "OutputDir: $outputDir"
+        
+        # Check package directory with Windows path format
+        $packageDir = "$githubWorkspace\packages\$packageName"
+        echo "Checking if package directory exists (Windows format): $packageDir"
+        if (Test-Path $packageDir) {
           echo "Directory exists, listing contents:"
-          Get-ChildItem -Path "$githubWorkspace/packages/$packageName" -Recurse
+          Get-ChildItem -Path $packageDir -Recurse
+          echo "Count of files in package directory: $(Get-ChildItem -Path $packageDir -Recurse | Where-Object { -not $_.PSIsContainer } | Measure-Object | Select-Object -ExpandProperty Count)"
         } else {
           echo "Directory does not exist!"
+          
+          # Check if parent directory exists
+          $parentDir = Split-Path -Parent $packageDir
+          echo "Checking parent directory: $parentDir"
+          if (Test-Path $parentDir) {
+            echo "Parent directory exists, listing contents:"
+            Get-ChildItem -Path $parentDir -Recurse
+          } else {
+            echo "Parent directory does not exist!"
+          }
         }
         
         # Create NSIS script content
@@ -123,7 +138,7 @@ jobs:
         $nsisContent += 'Section "MainSection" SEC01' + "`n"
         $nsisContent += '  SetOutPath "$INSTDIR"' + "`n`n"
         $nsisContent += '  ; Copy all files from the package directory' + "`n"
-        $nsisContent += '  File /r "' + $githubWorkspace + '/packages/' + $packageName + '/*"' + "`n`n"
+        $nsisContent += '  File /r "' + $githubWorkspace.Replace('/', '\\') + '\\packages\\' + $packageName + '\\*"' + "`n`n"
         $nsisContent += '  ; Create desktop shortcut' + "`n"
         $nsisContent += '  CreateShortCut "$DESKTOP\\' + $appName + '.lnk" "$INSTDIR\\openopenlauncher.exe"' + "`n`n"
         $nsisContent += '  ; Create start menu shortcut' + "`n"
