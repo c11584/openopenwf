@@ -112,7 +112,10 @@ jobs:
     - name: Build installer with NSIS
       run: |
         $packageName = "openopenwf-${{ matrix.configuration }}-$(git rev-parse --short HEAD)"
-        makensis "${{ github.workspace }}/packages/setup.nsi"
+        # Refresh environment variables after Chocolatey install
+        refreshenv
+        # Use full path to makensis to ensure it's found
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}/packages/setup.nsi"
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
