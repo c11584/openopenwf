@@ -33,7 +33,18 @@ jobs:
     
     - name: Build solution
       run: msbuild openopenwf.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64
-    
+
+    - name: Debug - Check build output directory
+      run: |
+        $outputDir = "x64/${{ matrix.configuration }}"
+        echo "Checking build output directory: $outputDir"
+        if (Test-Path "${{ github.workspace }}/$outputDir") {
+          echo "Directory exists, listing contents:"
+          Get-ChildItem -Path "${{ github.workspace }}/$outputDir" -Recurse
+        } else {
+          echo "Directory does not exist!"
+        }
+
     - name: Create package
       run: |
         $outputDir = "x64/${{ matrix.configuration }}"
@@ -47,6 +58,15 @@ jobs:
         
         # Create ZIP archive
         Compress-Archive -Path "${{ github.workspace }}/packages/${packageName}" -DestinationPath "${{ github.workspace }}/packages/${packageName}.zip"
+
+        # Debug - Check package directory
+        echo "Checking package directory: packages/${packageName}"
+        if (Test-Path "${{ github.workspace }}/packages/${packageName}") {
+          echo "Directory exists, listing contents:"
+          Get-ChildItem -Path "${{ github.workspace }}/packages/${packageName}" -Recurse
+        } else {
+          echo "Directory does not exist!"
+        }
     
     - name: Install NSIS
       run: choco install nsis -y
